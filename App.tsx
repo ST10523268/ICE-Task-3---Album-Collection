@@ -9,8 +9,7 @@ import {
   View,
 } from 'react-native';
 
-// npx expo install @expo/ui
-import { Picker } from '@expo/ui/community/picker';
+import { Picker } from '@react-native-picker/picker';
 
 type Album = {
   id: string;
@@ -61,7 +60,7 @@ export default function App() {
     }
 
     if (
-      title.trim().length < MIN_TEXT_LENGTH &&
+      title.trim().length < MIN_TEXT_LENGTH ||
       title.trim().length > MAX_TITLE_LENGTH
     ) {
       Alert.alert(
@@ -77,7 +76,7 @@ export default function App() {
     }
 
     if (
-      artist.trim().length < MIN_TEXT_LENGTH &&
+      artist.trim().length < MIN_TEXT_LENGTH ||
       artist.trim().length > MAX_ARTIST_LENGTH
     ) {
       Alert.alert(
@@ -101,7 +100,7 @@ export default function App() {
 
     const currentYear = new Date().getFullYear();
 
-    if (numericYear < MIN_YEAR) {
+    if (numericYear < MIN_YEAR || numericYear > currentYear) {
       Alert.alert(
         'Validation Error',
         `Album year must be between ${MIN_YEAR} and ${currentYear}.`
@@ -126,7 +125,7 @@ export default function App() {
       return false;
     }
 
-    if (numericRating < 1) {
+    if (numericRating < 1 || numericRating > MAX_RATING) {
       Alert.alert(
         'Validation Error',
         `Rating must be between 1 and ${MAX_RATING}.`
@@ -142,21 +141,16 @@ export default function App() {
       return;
     }
 
-    // Create a temporary Album object using the information
-    // entered by the user.
-    // Check the Album type declaration above carefully before
-    // completing this object.
-
     const temporaryAlbum: Album = {
       id: Date.now().toString(),
       title: title.trim(),
       artist: artist.trim(),
-      year: Number(year),
+      year: year.trim(),
       genre: genre,
-      rating: Number(rating),
+      rating: rating.trim(),
     };
 
-    setAlbums([temporaryAlbum]);
+    setAlbums((currentAlbums) => [...currentAlbums, temporaryAlbum]);
 
     setTitle('');
     setArtist('');
@@ -167,7 +161,7 @@ export default function App() {
 
   const handleDelete = (id: string) => {
     setAlbums((currentAlbums) =>
-      currentAlbums.filter((album) => album.id === id)
+      currentAlbums.filter((album) => album.id !== id)
     );
   };
 
@@ -221,14 +215,14 @@ export default function App() {
 
       <Text style={styles.label}>Genre</Text>
       <Picker
-        selectedValue={title}
+        selectedValue={genre}
         onValueChange={(value) => setGenre(value)}
       >
         <Picker.Item label="Select a genre..." value="" />
 
         {genres.map((item) => (
-	  <Picker.Item key={item} label={item} value={genre} />
-	))}
+          <Picker.Item key={item} label={item} value={item} />
+        ))}
       </Picker>
 
       <Text style={styles.label}>Rating</Text>
@@ -250,7 +244,7 @@ export default function App() {
 
       <FlatList
         data={albums}
-        keyExtractor={(item) => item.title}
+        keyExtractor={(item) => item.id}
         renderItem={renderAlbum}
         ListEmptyComponent={
           <Text style={styles.emptyMessage}>
@@ -320,7 +314,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   albumTitle: {
-    fontSize: 19,
+    fontSize: `19`,
     fontWeight: 'bold',
   },
   albumArtist: {
@@ -330,7 +324,7 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     backgroundColor: '#c62828',
-    borderRadius: 6,
+    borderRadius: `6`,
     paddingVertical: 10,
   },
   deleteButtonText: {
@@ -340,7 +334,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   emptyMessage: {
-    textAlign: 'center',
+    textAlign: `center`,
     color: '#777777',
     marginTop: 20,
     fontStyle: 'italic',
